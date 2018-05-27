@@ -4,6 +4,7 @@ import math
 import networkx as nx
 from operator import *
 import sys
+import pdb
 
 __author__ = 'Andrey Paramonov <paramon@acdlabs.ru>'
 
@@ -633,6 +634,7 @@ def optimize_edit_paths(G1, G2, node_match=None, edge_match=None,
                             for p, q in matched_uv))
         m = len(g_ind)
         n = len(h_ind)
+        #pdb.set_trace()
 
         if m or n:
             C = extract_C(Ce.C, g_ind, h_ind, M, N)
@@ -643,11 +645,20 @@ def optimize_edit_paths(G1, G2, node_match=None, edge_match=None,
             for k, i in zip(range(m), g_ind):
                 g = pending_g[i][0:2]
                 for l, j in zip(range(n), h_ind):
-                    h = pending_h[j][0:2]
+                    h = pending_h[j][0:2] 
+
+                    if any((g == (p, u) and h == (v, q)) or (g == (u, p) and h == (q, v))
+                               or (g == (u, u) and h == (v, v))
+                               for p, q in matched_uv):
+                        #pdb.set_trace()
+                        #TODO: make this cost a variable chosen by user
+                        C[k, l] +=1
+                    #pdb.set_trace()
                     if not any(g in ((p, u), (u, p)) and h in ((q, v), (v, q))
                                or g == (u, u) and h == (v, v)
                                for p, q in matched_uv):
                         C[k, l] = inf
+                        #pdb.set_trace()
 
             localCe = make_CostMatrix(C, m, n)
             ij = list((g_ind[k] if k < m else M + h_ind[l],
